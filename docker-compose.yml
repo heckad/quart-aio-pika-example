@@ -21,7 +21,7 @@ services:
       context: ./test_service
       dockerfile: ./Dockerfile.dev
     restart: always
-    command: /home/appuser/app/server/run_asgi.sh
+    entrypoint: /home/appuser/app/server/run_asgi.sh
     volumes:
       - ./test_service/server:/home/appuser/app/server:cached
     expose:
@@ -38,7 +38,7 @@ services:
       context: ./test_service
       dockerfile: ./Dockerfile.dev
     restart: always
-    command: /home/appuser/app/server/run_consumer.sh
+    entrypoint: /home/appuser/app/server/run_consumer.sh
     volumes:
       - ./test_service/server:/home/appuser/app/server:cached
     expose:
