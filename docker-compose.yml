@@ -1,0 +1,57 @@
+version: "3.4"
+services:
+
+  rabbit:
+    build:
+      context: ./rabbit
+      dockerfile: ./Dockerfile.dev
+    restart: always
+    networks:
+      - nw_web
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - v_rabbit:/var/lib/rabbitmq:cached
+      - ./rabbit/rabbitmq-dev.config:/etc/rabbitmq/rabbitmq.config:cached
+      - ./rabbit/definitions-dev.json:/etc/rabbitmq/definitions.json:cached
+
+  asgi:
+    build:
+      context: ./test_service
+      dockerfile: ./Dockerfile.dev
+    restart: always
+    command: /home/appuser/app/server/run_asgi.sh
+    volumes:
+      - ./test_service/server:/home/appuser/app/server:cached
+    expose:
+      - "8000"
+    ports:
+     - "8001:8000"
+    networks:
+      - nw_web
+    depends_on:
+      - rabbit
+
+  consumer:
+    build:
+      context: ./test_service
+      dockerfile: ./Dockerfile.dev
+    restart: always
+    command: /home/appuser/app/server/run_consumer.sh
+    volumes:
+      - ./test_service/server:/home/appuser/app/server:cached
+    expose:
+      - "8000"
+    ports:
+     - "8002:8000"
+    networks:
+      - nw_web
+    depends_on:
+      - rabbit
+
+networks:
+  nw_web:
+
+volumes:
+  v_rabbit:

@@ -1,0 +1,26 @@
+FROM python:3.6
+
+LABEL maintainer="vashchukmaksim@gmail.com"
+
+ARG NEXUS_PASSWORD
+
+# Install python dependencies
+COPY requirements* /tmp/
+USER root
+RUN pip install -r /tmp/requirements.txt
+RUN pip install https://github.com/heckad/aio-pika/archive/fix-reconect-error.zip
+
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+USER appuser
+
+# Port
+EXPOSE 8000
+
+# Copy app
+COPY ./server /home/appuser/app/server
+
+# Run
+ENV PYTHONPATH="/home/appuser/app:${PYTHONPATH}"
+WORKDIR /home/appuser/app/server
+ENTRYPOINT ["/home/appuser/app/server/run_asgi.sh"]
